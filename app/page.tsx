@@ -8,6 +8,7 @@ import { ClaimBanner } from "@/components/ClaimBanner";
 import { Composer } from "@/components/Composer";
 import { StatusBoard } from "@/components/StatusBoard";
 import { ToolTrail } from "@/components/ToolTrail";
+import { RunOutputErrorBoundary } from "@/components/RunOutputErrorBoundary";
 import {
   extractAnswerText,
   partsToToolSteps,
@@ -23,16 +24,19 @@ const SAMPLE_ASKS = [
 
 export default function Home() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest: ({ messages: uiMessages }) => ({
-        body: {
-          messages: uiMessagesToChatMessages(uiMessages),
-        },
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        prepareSendMessagesRequest: ({ messages: uiMessages }) => ({
+          body: {
+            messages: uiMessagesToChatMessages(uiMessages),
+          },
+        }),
       }),
-    }),
-  });
+    [],
+  );
+  const { messages, sendMessage, status } = useChat({ transport });
 
   const latestAssistant = [...messages].reverse().find((message) => message.role === "assistant");
   const toolSteps = useMemo(
@@ -73,12 +77,14 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <ToolTrail steps={toolSteps} />
-        <StatusBoard rows={boardRows} />
-      </div>
+      <RunOutputErrorBoundary>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ToolTrail steps={toolSteps} />
+          <StatusBoard rows={boardRows} />
+        </div>
 
-      <AnswerStream isStreaming={isStreaming} text={answerText} />
+        <AnswerStream isStreaming={isStreaming} text={answerText} />
+      </RunOutputErrorBoundary>
     </main>
   );
 }

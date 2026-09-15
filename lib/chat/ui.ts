@@ -18,6 +18,30 @@ function toolNameFromPart(type: string): "syncVenues" | "deliverWebhook" {
   return type === "tool-syncVenues" ? "syncVenues" : "deliverWebhook";
 }
 
+function isSyncResult(value: unknown): value is SyncResult {
+  if (typeof value !== "object" || value == null) return false;
+  const result = value as Record<string, unknown>;
+  return (
+    typeof result.syncId === "string" &&
+    typeof result.venueGroup === "string" &&
+    typeof result.syncedCount === "number" &&
+    typeof result.dryRun === "boolean" &&
+    typeof result.finishedAt === "string"
+  );
+}
+
+function isWebhookResult(value: unknown): value is WebhookResult {
+  if (typeof value !== "object" || value == null) return false;
+  const result = value as Record<string, unknown>;
+  return (
+    typeof result.deliveryId === "string" &&
+    typeof result.syncId === "string" &&
+    typeof result.target === "string" &&
+    (result.statusCode === 200 || result.statusCode === 202 || result.statusCode === 500) &&
+    typeof result.deliveredAt === "string"
+  );
+}
+
 export function chatMessagesToModelMessages(messages: ChatMessage[]) {
   return messages.map((message) => ({
     role: message.role,
@@ -25,8 +49,8 @@ export function chatMessagesToModelMessages(messages: ChatMessage[]) {
   }));
 }
 
-export function partsToToolSteps(parts: UIMessage["parts"]): ToolStep[] {
-  return parts.filter(isToolPart).map((part, index) => {
+export function partsToToolSteps(parts: UIMessage["parts"] | undefined): ToolStep[] {
+  return (parts ?? []).filter(isToolPart).map((part, index) => {
     const name = toolNameFromPart(part.type);
     const toolCallId =
       "toolCallId" in part && part.toolCallId ? String(part.toolCallId) : `${name}-${index}`;
@@ -37,13 +61,13 @@ export function partsToToolSteps(parts: UIMessage["parts"]): ToolStep[] {
 
     if (name === "syncVenues") {
       const args = (input ?? { venueGroup: "" }) as SyncVenuesArgs;
-      if (state === "output-available" && output != null) {
+      if (state === "output-available" && isSyncResult(output)) {
         return {
           id: toolCallId,
           name,
           args,
           state: "done" as const,
-          result: output as SyncResult,
+          result: output,
         };
       }
       if (state === "output-error") {
@@ -59,13 +83,13 @@ export function partsToToolSteps(parts: UIMessage["parts"]): ToolStep[] {
     }
 
     const args = (input ?? { syncId: "", target: "" }) as DeliverWebhookArgs;
-    if (state === "output-available" && output != null) {
+    if (state === "output-available" && isWebhookResult(output)) {
       return {
         id: toolCallId,
         name,
         args,
         state: "done" as const,
-        result: output as WebhookResult,
+        result: output,
       };
     }
     if (state === "output-error") {
@@ -113,8 +137,8 @@ export function toolStepsToBoardRows(steps: ToolStep[]): BoardRow[] {
   });
 }
 
-export function extractAnswerText(parts: UIMessage["parts"]): string {
-  return parts
+export function extractAnswerText(parts: UIMessage["parts"] | undefined): string {
+  return (parts ?? [])
     .filter((part): part is { type: "text"; text: string } => part.type === "text")
     .map((part) => part.text)
     .join("")

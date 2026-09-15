@@ -33,28 +33,28 @@ export function ToolStepCard({ step }: ToolStepCardProps) {
         </span>
       </div>
 
-      {step.state === "done" && step.name === "syncVenues" && (
+      {step.state === "done" && step.name === "syncVenues" && step.result && (
         <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-400">
           <div>
             <dt className="text-zinc-600">syncId</dt>
-            <dd className="font-mono text-zinc-300">{step.result.syncId}</dd>
+            <dd className="font-mono text-zinc-300">{step.result.syncId ?? "—"}</dd>
           </div>
           <div>
             <dt className="text-zinc-600">synced</dt>
-            <dd>{step.result.syncedCount} venues</dd>
+            <dd>{step.result.syncedCount ?? 0} venues</dd>
           </div>
         </dl>
       )}
 
-      {step.state === "done" && step.name === "deliverWebhook" && (
+      {step.state === "done" && step.name === "deliverWebhook" && step.result && (
         <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-400">
           <div>
             <dt className="text-zinc-600">deliveryId</dt>
-            <dd className="font-mono text-zinc-300">{step.result.deliveryId}</dd>
+            <dd className="font-mono text-zinc-300">{step.result.deliveryId ?? "—"}</dd>
           </div>
           <div>
             <dt className="text-zinc-600">status</dt>
-            <dd>{step.result.statusCode}</dd>
+            <dd>{step.result.statusCode ?? "—"}</dd>
           </div>
         </dl>
       )}
