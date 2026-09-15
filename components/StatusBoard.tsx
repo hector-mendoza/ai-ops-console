@@ -36,13 +36,14 @@ export function StatusBoard({ rows }: StatusBoardProps) {
                 <div>
                   <p className="text-xs uppercase tracking-wide text-zinc-600">{row.kind}</p>
                   <p className="mt-1 text-sm text-zinc-100">{row.label}</p>
-                  {row.state === "done" && row.kind === "sync" && (
+                  {row.state === "done" && row.kind === "sync" && row.detail && (
                     <p className="mt-1 text-xs text-zinc-500">
-                      {row.detail.syncedCount} venues · {row.detail.dryRun ? "dry run" : "live"}
+                      {row.detail.syncedCount ?? 0} venues ·{" "}
+                      {row.detail.dryRun ? "dry run" : "live"}
                     </p>
                   )}
-                  {row.state === "done" && row.kind === "webhook" && (
-                    <p className="mt-1 text-xs text-zinc-500">HTTP {row.detail.statusCode}</p>
+                  {row.state === "done" && row.kind === "webhook" && row.detail && (
+                    <p className="mt-1 text-xs text-zinc-500">HTTP {row.detail.statusCode ?? "—"}</p>
                   )}
                   {row.state === "error" && (
                     <p className="mt-1 text-xs text-red-300">{row.error}</p>
