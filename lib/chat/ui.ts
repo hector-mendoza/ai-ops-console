@@ -37,7 +37,7 @@ export function partsToToolSteps(parts: UIMessage["parts"]): ToolStep[] {
 
     if (name === "syncVenues") {
       const args = (input ?? { venueGroup: "" }) as SyncVenuesArgs;
-      if (state === "output-available") {
+      if (state === "output-available" && output != null) {
         return {
           id: toolCallId,
           name,
@@ -59,7 +59,7 @@ export function partsToToolSteps(parts: UIMessage["parts"]): ToolStep[] {
     }
 
     const args = (input ?? { syncId: "", target: "" }) as DeliverWebhookArgs;
-    if (state === "output-available") {
+    if (state === "output-available" && output != null) {
       return {
         id: toolCallId,
         name,
