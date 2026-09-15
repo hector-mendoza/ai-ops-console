@@ -113,12 +113,15 @@ const WEBHOOK_TARGET_ALIASES: Record<string, string> = {
   "analytics pipeline": "analytics-pipeline",
 };
 
-function normalizeKey(value: string): string {
+function normalizeKey(value: unknown): string {
+  if (typeof value !== "string") return "";
   return value.trim().toLowerCase();
 }
 
-export function resolveVenueGroupId(input: string): string | undefined {
+export function resolveVenueGroupId(input: unknown): string | undefined {
+  if (typeof input !== "string") return undefined;
   const trimmed = input.trim();
+  if (!trimmed) return undefined;
   const normalized = normalizeKey(trimmed);
 
   const byId = VENUE_GROUPS.find((group) => group.id === trimmed || group.id === normalized);
@@ -133,8 +136,10 @@ export function resolveVenueGroupId(input: string): string | undefined {
   return undefined;
 }
 
-export function resolveWebhookTargetId(input: string): string | undefined {
+export function resolveWebhookTargetId(input: unknown): string | undefined {
+  if (typeof input !== "string") return undefined;
   const trimmed = input.trim();
+  if (!trimmed) return undefined;
   const normalized = normalizeKey(trimmed);
 
   const byId = WEBHOOK_TARGETS.find(
@@ -151,12 +156,14 @@ export function resolveWebhookTargetId(input: string): string | undefined {
   return undefined;
 }
 
-export function getVenueGroup(id: string): VenueGroup | undefined {
+export function getVenueGroup(id: unknown): VenueGroup | undefined {
+  if (typeof id !== "string" || !id.trim()) return undefined;
   const resolved = resolveVenueGroupId(id) ?? id;
   return VENUE_GROUPS.find((group) => group.id === resolved);
 }
 
-export function getWebhookTarget(id: string): WebhookTarget | undefined {
+export function getWebhookTarget(id: unknown): WebhookTarget | undefined {
+  if (typeof id !== "string" || !id.trim()) return undefined;
   const resolved = resolveWebhookTargetId(id) ?? id;
   return WEBHOOK_TARGETS.find((target) => target.id === resolved);
 }

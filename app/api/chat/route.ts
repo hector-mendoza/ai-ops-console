@@ -1,6 +1,6 @@
 import {
   convertToModelMessages,
-  stepCountIs as isStepCount,
+  isStepCount,
   streamText,
   tool,
   type UIMessage,
