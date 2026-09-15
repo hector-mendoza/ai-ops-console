@@ -42,6 +42,28 @@ function isWebhookResult(value: unknown): value is WebhookResult {
   );
 }
 
+function stringField(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function normalizeSyncVenuesArgs(input: unknown): SyncVenuesArgs {
+  const raw =
+    typeof input === "object" && input !== null ? (input as Record<string, unknown>) : {};
+  return {
+    venueGroup: stringField(raw.venueGroup),
+    dryRun: typeof raw.dryRun === "boolean" ? raw.dryRun : undefined,
+  };
+}
+
+function normalizeDeliverWebhookArgs(input: unknown): DeliverWebhookArgs {
+  const raw =
+    typeof input === "object" && input !== null ? (input as Record<string, unknown>) : {};
+  return {
+    syncId: stringField(raw.syncId),
+    target: stringField(raw.target),
+  };
+}
+
 export function chatMessagesToModelMessages(messages: ChatMessage[]) {
   return messages.map((message) => ({
     role: message.role,
@@ -60,7 +82,7 @@ export function partsToToolSteps(parts: UIMessage["parts"] | undefined): ToolSte
     const errorText = "errorText" in part ? part.errorText : undefined;
 
     if (name === "syncVenues") {
-      const args = (input ?? { venueGroup: "" }) as SyncVenuesArgs;
+      const args = normalizeSyncVenuesArgs(input);
       if (state === "output-available" && isSyncResult(output)) {
         return {
           id: toolCallId,
@@ -82,7 +104,7 @@ export function partsToToolSteps(parts: UIMessage["parts"] | undefined): ToolSte
       return { id: toolCallId, name, args, state: "pending" as const };
     }
 
-    const args = (input ?? { syncId: "", target: "" }) as DeliverWebhookArgs;
+    const args = normalizeDeliverWebhookArgs(input);
     if (state === "output-available" && isWebhookResult(output)) {
       return {
         id: toolCallId,
