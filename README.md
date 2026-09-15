@@ -18,7 +18,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and try an ops ask such as:
 
-> Sync coastal resorts and notify the partner events hub.
+> Sync downtown venues and push to the ops status board.
 
 The console chains `syncVenues` → `deliverWebhook`, updates the tool trail and status board live, then streams an ops wrap-up.
 

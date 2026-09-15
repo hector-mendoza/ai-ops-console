@@ -13,7 +13,7 @@ export function Composer({
   onChange,
   onSubmit,
   disabled = false,
-  placeholder = "Sync coastal resorts and notify the partner events hub…",
+  placeholder = "Sync downtown venues and push to the ops status board…",
 }: ComposerProps) {
   return (
     <form

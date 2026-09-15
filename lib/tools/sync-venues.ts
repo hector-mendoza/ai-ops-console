@@ -1,4 +1,4 @@
-import { getVenueGroup } from "@/lib/data/integrations";
+import { getVenueGroup, listVenueGroupIds, resolveVenueGroupId } from "@/lib/data/integrations";
 import type { SyncResult, SyncVenuesArgs } from "@/lib/chat/types";
 
 export type SyncStore = Map<string, SyncResult>;
@@ -12,15 +12,16 @@ export function syncVenues(
   args: SyncVenuesArgs,
   store: SyncStore,
 ): SyncResult {
-  const venueGroup = args.venueGroup?.trim();
-  if (!venueGroup) {
+  const rawGroup = args.venueGroup?.trim();
+  if (!rawGroup) {
     throw new Error("venueGroup is required");
   }
 
+  const venueGroup = resolveVenueGroupId(rawGroup) ?? rawGroup;
   const group = getVenueGroup(venueGroup);
   if (!group) {
     throw new Error(
-      `Unknown venue group "${venueGroup}". Valid groups: coastal-resorts, metro-nightlife, premium-casinos, festival-grounds`,
+      `Unknown venue group "${rawGroup}". Valid groups: ${listVenueGroupIds().join(", ")}`,
     );
   }
 

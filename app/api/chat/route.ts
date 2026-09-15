@@ -43,7 +43,7 @@ function buildTools(store: SyncStore) {
         venueGroup: z
           .string()
           .min(1)
-          .describe("Seed venue group id, e.g. coastal-resorts"),
+          .describe("Seed venue group id, e.g. downtown-venues or coastal-resorts"),
         dryRun: z
           .boolean()
           .optional()
@@ -59,7 +59,7 @@ function buildTools(store: SyncStore) {
         target: z
           .string()
           .min(1)
-          .describe("Seed webhook target id, e.g. partner-events-hub"),
+          .describe("Seed webhook target id, e.g. ops-status-board or partner-events-hub"),
       }),
       execute: async (args) => deliverWebhook(args, store),
     }),
