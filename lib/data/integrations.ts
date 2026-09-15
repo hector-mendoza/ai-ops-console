@@ -29,6 +29,16 @@ export const VENUE_GROUPS: VenueGroup[] = [
     ],
   },
   {
+    id: "downtown-venues",
+    label: "Downtown Venues",
+    venues: [
+      { id: "dv-001", name: "Civic Center Hall", city: "New York", capacity: 2800 },
+      { id: "dv-002", name: "Union Square Theater", city: "San Francisco", capacity: 1900 },
+      { id: "dv-003", name: "Main Street Arena", city: "Seattle", capacity: 4200 },
+      { id: "dv-004", name: "Market District Ballroom", city: "Portland", capacity: 1600 },
+    ],
+  },
+  {
     id: "metro-nightlife",
     label: "Metro Nightlife",
     venues: [
@@ -84,12 +94,71 @@ export const WEBHOOK_TARGETS: WebhookTarget[] = [
   },
 ];
 
+const VENUE_GROUP_ALIASES: Record<string, string> = {
+  downtown: "downtown-venues",
+  "downtown venues": "downtown-venues",
+  "downtown group": "downtown-venues",
+  "coastal resorts": "coastal-resorts",
+  "metro nightlife": "metro-nightlife",
+  "premium casinos": "premium-casinos",
+  "festival grounds": "festival-grounds",
+};
+
+const WEBHOOK_TARGET_ALIASES: Record<string, string> = {
+  "ops status board": "ops-status-board",
+  "status board": "ops-status-board",
+  "partner events hub": "partner-events-hub",
+  "crm sync endpoint": "crm-sync-endpoint",
+  "crm sync": "crm-sync-endpoint",
+  "analytics pipeline": "analytics-pipeline",
+};
+
+function normalizeKey(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+export function resolveVenueGroupId(input: string): string | undefined {
+  const trimmed = input.trim();
+  const normalized = normalizeKey(trimmed);
+
+  const byId = VENUE_GROUPS.find((group) => group.id === trimmed || group.id === normalized);
+  if (byId) return byId.id;
+
+  const byLabel = VENUE_GROUPS.find((group) => normalizeKey(group.label) === normalized);
+  if (byLabel) return byLabel.id;
+
+  const alias = VENUE_GROUP_ALIASES[normalized];
+  if (alias) return alias;
+
+  return undefined;
+}
+
+export function resolveWebhookTargetId(input: string): string | undefined {
+  const trimmed = input.trim();
+  const normalized = normalizeKey(trimmed);
+
+  const byId = WEBHOOK_TARGETS.find(
+    (target) => target.id === trimmed || target.id === normalized,
+  );
+  if (byId) return byId.id;
+
+  const byLabel = WEBHOOK_TARGETS.find((target) => normalizeKey(target.label) === normalized);
+  if (byLabel) return byLabel.id;
+
+  const alias = WEBHOOK_TARGET_ALIASES[normalized];
+  if (alias) return alias;
+
+  return undefined;
+}
+
 export function getVenueGroup(id: string): VenueGroup | undefined {
-  return VENUE_GROUPS.find((group) => group.id === id);
+  const resolved = resolveVenueGroupId(id) ?? id;
+  return VENUE_GROUPS.find((group) => group.id === resolved);
 }
 
 export function getWebhookTarget(id: string): WebhookTarget | undefined {
-  return WEBHOOK_TARGETS.find((target) => target.id === id);
+  const resolved = resolveWebhookTargetId(id) ?? id;
+  return WEBHOOK_TARGETS.find((target) => target.id === resolved);
 }
 
 export function listVenueGroupIds(): string[] {

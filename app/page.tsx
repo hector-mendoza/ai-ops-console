@@ -15,6 +15,12 @@ import {
   uiMessagesToChatMessages,
 } from "@/lib/chat/ui";
 
+const SAMPLE_ASKS = [
+  "Sync downtown venues and push to the ops status board",
+  "Sync coastal-resorts and notify partner-events-hub",
+  "Run a dry sync for metro-nightlife and hit the analytics pipeline",
+];
+
 export default function Home() {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status } = useChat({
@@ -52,6 +58,20 @@ export default function Home() {
         }}
         value={input}
       />
+
+      <div className="flex flex-wrap gap-2">
+        {SAMPLE_ASKS.map((ask) => (
+          <button
+            key={ask}
+            className="rounded-full border border-zinc-700 bg-zinc-900/60 px-3 py-1.5 text-xs text-zinc-300 transition hover:border-emerald-500/50 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={isStreaming}
+            onClick={() => sendMessage({ text: ask })}
+            type="button"
+          >
+            {ask}
+          </button>
+        ))}
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ToolTrail steps={toolSteps} />

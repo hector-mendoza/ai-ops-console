@@ -1,4 +1,8 @@
-import { getWebhookTarget } from "@/lib/data/integrations";
+import {
+  getWebhookTarget,
+  listWebhookTargetIds,
+  resolveWebhookTargetId,
+} from "@/lib/data/integrations";
 import type { DeliverWebhookArgs, WebhookResult } from "@/lib/chat/types";
 import type { SyncStore } from "@/lib/tools/sync-venues";
 
@@ -22,12 +26,12 @@ export function deliverWebhook(
   store: SyncStore,
 ): WebhookResult {
   const syncId = args.syncId?.trim();
-  const target = args.target?.trim();
+  const rawTarget = args.target?.trim();
 
   if (!syncId) {
     throw new Error("syncId is required");
   }
-  if (!target) {
+  if (!rawTarget) {
     throw new Error("target is required");
   }
 
@@ -38,10 +42,11 @@ export function deliverWebhook(
     );
   }
 
+  const target = resolveWebhookTargetId(rawTarget) ?? rawTarget;
   const webhook = getWebhookTarget(target);
   if (!webhook) {
     throw new Error(
-      `Unknown webhook target "${target}". Valid targets: partner-events-hub, crm-sync-endpoint, analytics-pipeline, ops-status-board`,
+      `Unknown webhook target "${rawTarget}". Valid targets: ${listWebhookTargetIds().join(", ")}`,
     );
   }
 
